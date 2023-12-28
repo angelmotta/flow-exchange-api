@@ -31,7 +31,7 @@ public class UserController {
 
         BindingResult bindingResult = new BeanPropertyBindingResult(r, "UserInfoSignupRequest");
         if (r == null) {
-            bindingResult.addError(new FieldError("UserInfo", "UserInfo", "UserInfo cannot be null"));
+            bindingResult.addError(new FieldError("UserInfo", "user_info", "user_info Object field required"));
         }
         if (bindingResult.hasErrors()) {
             System.out.println("errors in validation");

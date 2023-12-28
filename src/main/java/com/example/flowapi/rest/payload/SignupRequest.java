@@ -1,16 +1,19 @@
 package com.example.flowapi.rest.payload;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public class SignupRequest {
 
     @NotNull(message = "step required")
-    @Pattern(regexp = "[1-3]", message = "Invalid step value")
+    @Pattern(regexp = "[1-2]", message = "Invalid step value")
     private String step;
-    @NotNull(message = "idp required")
+    @NotNull(message = "idp field required")
+    @Pattern(regexp = "^(google|facebook)$", message = "Invalid idp value")
     private String idp;
 
+    @JsonProperty("user_info")
     private UserInfoSignupRequest userInfo;
 
     SignupRequest() {};
