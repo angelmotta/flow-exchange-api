@@ -21,7 +21,7 @@ import java.util.Set;
 public class UserController {
 
     @PostMapping("/users")
-    public SignupRequest createUser(@Valid @RequestBody SignupRequest signupRequest) throws MethodArgumentNotValidException {
+    public User createUser(@Valid @RequestBody SignupRequest signupRequest) throws MethodArgumentNotValidException {
         System.out.println("Received body request:");
         System.out.println(signupRequest);
 
@@ -45,7 +45,22 @@ public class UserController {
         }
 
         System.out.println("Validation successful");
-        return signupRequest;
+
+        // Create User Object
+        User newUser = new User();
+        newUser.setName(signupRequest.getUserInfo().getName());
+        newUser.setDni(signupRequest.getUserInfo().getDni());
+        newUser.setLastnameMain(signupRequest.getUserInfo().getLastName_main());
+        newUser.setLastnameSecondary(signupRequest.getUserInfo().getLastName_secondary());
+        newUser.setAddress(signupRequest.getUserInfo().getAddress());
+        // Additional userInfo
+        String ROLE_USER = "customer";
+        String STATE_USER = "registered";
+        newUser.setRole(ROLE_USER);
+        newUser.setState(STATE_USER);
+        System.out.println(newUser);
+
+        return newUser;
     }
 
 }

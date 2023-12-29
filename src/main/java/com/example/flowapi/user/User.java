@@ -1,8 +1,10 @@
 package com.example.flowapi.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name="users")
@@ -25,14 +27,24 @@ public class User {
     private String lastnameSecondary;
     @Column(name="address")
     private String address;
-    @Column(name="created_at")
-    private Timestamp createdAt;
+    @Column(name="created_at", nullable = false, updatable = false)
+    @CreationTimestamp
+    private OffsetDateTime createdAt;
     @Column(name="state")
     private String state;
     @Column(name="deleted_at")
-    private Timestamp deletedAt;
+    @JsonIgnore
+    private OffsetDateTime deletedAt;
 
     public User() {}
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
 
     public Integer getId() {
         return id;
@@ -98,13 +110,6 @@ public class User {
         this.address = address;
     }
 
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public String getState() {
         return state;
@@ -114,11 +119,11 @@ public class User {
         this.state = state;
     }
 
-    public Timestamp getDeletedAt() {
+    public OffsetDateTime getDeletedAt() {
         return deletedAt;
     }
 
-    public void setDeletedAt(Timestamp deletedAt) {
+    public void setDeletedAt(OffsetDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 
