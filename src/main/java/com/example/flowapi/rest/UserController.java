@@ -5,6 +5,7 @@ import com.example.flowapi.rest.payload.UserInfoSignupRequest;
 import com.example.flowapi.user.User;
 import jakarta.validation.*;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -25,26 +26,28 @@ public class UserController {
         System.out.println("Received body request:");
         System.out.println(signupRequest);
 
+
+        UserInfoSignupRequest userInfo = null;
+        if (signupRequest.getStep().equals("2")) {
+            userInfo = signupRequest.getUserInfo();
+            if (userInfo == null) {
+                BindingResult bindingResult = new BeanPropertyBindingResult(userInfo, "UserInfoSignupRequest");
+                bindingResult.addError(new FieldError("UserInfo", "user_info", "user_info Object field required"));
+                throw new MethodArgumentNotValidException(null, bindingResult);
+            }
+        }
+
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        UserInfoSignupRequest r = signupRequest.getUserInfo();
-
-        BindingResult bindingResult = new BeanPropertyBindingResult(r, "UserInfoSignupRequest");
-        if (r == null) {
-            bindingResult.addError(new FieldError("UserInfo", "user_info", "user_info Object field required"));
-        }
-        if (bindingResult.hasErrors()) {
-            System.out.println("errors in validation");
-            throw new MethodArgumentNotValidException(null, bindingResult);
-        }
-
-        Set<ConstraintViolation<UserInfoSignupRequest>> violations = validator.validate(r);
+        Set<ConstraintViolation<UserInfoSignupRequest>> violations = validator.validate(userInfo);
         if (!violations.isEmpty()) {
             System.out.println("Validation error detected");
             throw new ConstraintViolationException(violations);
         }
 
-        System.out.println("Validation successful");
+
+        System.out.println("Validation successful:");
+        System.out.println(userInfo);
 
         // Create User Object
         User newUser = new User();
