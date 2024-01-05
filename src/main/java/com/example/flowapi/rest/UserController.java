@@ -26,29 +26,6 @@ public class UserController {
         System.out.println("Received body request:");
         System.out.println(signupRequest);
 
-
-        UserInfoSignupRequest userInfo = null;
-        if (signupRequest.getStep().equals("2")) {
-            userInfo = signupRequest.getUserInfo();
-            if (userInfo == null) {
-                BindingResult bindingResult = new BeanPropertyBindingResult(userInfo, "UserInfoSignupRequest");
-                bindingResult.addError(new FieldError("UserInfo", "user_info", "user_info Object field required"));
-                throw new MethodArgumentNotValidException(null, bindingResult);
-            }
-        }
-
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<UserInfoSignupRequest>> violations = validator.validate(userInfo);
-        if (!violations.isEmpty()) {
-            System.out.println("Validation error detected");
-            throw new ConstraintViolationException(violations);
-        }
-
-
-        System.out.println("Validation successful:");
-        System.out.println(userInfo);
-
         // Create User Object
         User newUser = new User();
         newUser.setName(signupRequest.getUserInfo().getName());

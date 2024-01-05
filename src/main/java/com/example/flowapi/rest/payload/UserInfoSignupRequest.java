@@ -18,7 +18,7 @@ public class UserInfoSignupRequest {
     @JsonProperty("lastname_secondary")
     private String lastName_secondary;
 
-    @NotNull(message = "address field required in UserInfo object")
+    @NotNull(message = "address field required in user_info object")
     private String address;
 
     public String getLastName_main() {

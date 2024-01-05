@@ -19,7 +19,7 @@ public class ErrorHandlingControllerAdvice {
     ValidationErrorResponse onConstraintValidationException(ConstraintViolationException e) {
         System.out.println("onConstraintValidationException in action");
         ValidationErrorResponse errorResponse = new ValidationErrorResponse();
-        for (ConstraintViolation violation : e.getConstraintViolations()) {
+        for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
             errorResponse.getViolations().add(new Violation(violation.getPropertyPath().toString(), violation.getMessage()));
         }
         return errorResponse;
