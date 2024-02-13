@@ -6,6 +6,21 @@ meta {
 
 post {
   url: http://localhost:8080/users
-  body: none
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "step": "2",
+    "idp": "google",
+    "user_info": {
+      "name": "Angel",
+      "dni": "12345678",
+      "lastname_main": "Motta",
+      "lastname_secondary": "Paz",
+      "address": "Jiron Manuel Pazos 709"
+    }
+  }
+  
 }
