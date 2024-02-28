@@ -2,6 +2,8 @@ package com.example.flowapi.rest.controlleradvice;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -45,14 +47,28 @@ public class ErrorHandlingControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     ValidationErrorResponse onConstraintSQLValidationException(SQLException e) {
-        System.out.println("Handler onConstraintSQLValidationException in action");
+        System.out.println("Handler SQLException");
         ValidationErrorResponse errorResponse = new ValidationErrorResponse();
         errorResponse.getViolations().add(new Violation(e.getSQLState(), e.getMessage()));
         return errorResponse;
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        System.out.println("Handle DataIntegrityViolationException");
+        // Check if the exception message contains the unique constraint violation error
+        if (ex.getMessage().contains("duplicate key value violates unique constraint")) {
+            //return new ResponseEntity<>("Duplicate key value violates unique constraint.", HttpStatus.CONFLICT);
+            GeneralErrorResponse errorResponse = new GeneralErrorResponse("Duplicate key value violates unique constraint.");
+            return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+        }
+        // Handle other data integrity violations here
+        return new ResponseEntity<>("Data integrity violation occurred.", HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
+        System.out.println("Default Exception Handler");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("An unexpected error occurred: " + ex.getMessage());
     }

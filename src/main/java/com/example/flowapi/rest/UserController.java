@@ -1,5 +1,6 @@
 package com.example.flowapi.rest;
 
+import com.example.flowapi.exception.ResourceAlreadyExistException;
 import com.example.flowapi.rest.payload.SignupRequest;
 import com.example.flowapi.user.User;
 import com.example.flowapi.user.UserService;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +37,7 @@ public class UserController {
         System.out.println(authorizationHeader);
         System.out.println("-------------");
         if (authorizationHeader == null) {
+            // Todo: 400 status
             throw new AccessDeniedException("Invalid Authorization Header: null");
         }
         String[] authHeaderList = authorizationHeader.split(" ");
@@ -44,18 +45,35 @@ public class UserController {
             throw new AccessDeniedException("Invalid Authorization Header: should ne 'Bearer <token>'");
         }
 
+        // Todo: try / 401 not authorized
         Jwt jwt = jwtDecoder.decode(authHeaderList[1]);
         var claims = jwt.getClaims();
         String userEmail = claims.get("email").toString();
 
-        // Create User Object
-        User newUser = userService.registerNewUser(signupRequest, userEmail);
+        // Todo: if request is step 1: validate if email is available and return result
+        // Todo: return result: 200 (available) | 409 (user already exist)
+        Boolean isAvailable = userService.isAvailable(userEmail);
+        System.out.println("Is user available?");
+        System.out.println(isAvailable);
+//        if (!isAvailable) {
+//            throw new ResourceAlreadyExistException(String.format("User with email '%s' is already registered", userEmail));
+//        }
+        /*
+        * if (!isAvailable) {
+        *   return 409
+        * } else {
+        *   if (step == 1) {
+        *     return 200
+        *   }
+        * }
+        * */
 
-        // Save User in Database
-        userService.saveUser(newUser);
+        // Create User Object
+        User newUser = userService.create(signupRequest, userEmail);
+
         System.out.println("controller: new user record saved");
         System.out.println(newUser);
-
+        // Todo: Status code 201 (resource created)
         return newUser;
     }
 
