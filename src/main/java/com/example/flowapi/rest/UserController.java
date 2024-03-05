@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,9 +53,40 @@ public class UserController {
         }
 
         // Todo: try / 401 not authorized
-        Jwt jwt = jwtDecoder.decode(authHeaderList[1]);
-        var claims = jwt.getClaims();
-        String userEmail = claims.get("email").toString();
+        // Try catch block decode jwtDecoder and get email
+        String userEmail;
+        try {
+            System.out.println("Try jwt decode");
+            Jwt jwt = jwtDecoder.decode(authHeaderList[1]);
+            var claims = jwt.getClaims();
+             userEmail = claims.get("email").toString();
+        } catch (JwtValidationException e) {
+            // inspect exception and verify if it is a JwtException due to invalid token
+            System.out.println("Catch JwtValidationException: tried decoding jwt");
+            System.out.println(e.getMessage());
+            System.out.println(e.getLocalizedMessage());
+            System.out.println(e.getErrors());
+            System.out.println(e.getErrors().size());
+            // get the error element from collection getErrors()
+            var err = e.getErrors().iterator().next(); // guaranteed to have at least one element
+//            for (var error : e.getErrors()) {
+//                System.out.println(error.getErrorCode());
+//                System.out.println(error.getDescription());
+//            }
+//            System.out.println("---");
+//            System.out.println(e.getClass().getSimpleName()); // JwtValidationException class
+            throw new AccessDeniedException(err.getDescription());
+        } catch (Exception e) {
+            System.out.println("Catch General exception: tried decoding jwt");
+            throw new AccessDeniedException(e.getMessage());
+        }
+        System.out.println("decode jwt done");
+        System.out.println(userEmail);
+//        Jwt jwt = jwtDecoder.decode(authHeaderList[1]);
+//
+//        System.out.println("decode jwt done");
+//        var claims = jwt.getClaims();
+//        String userEmail = claims.get("email").toString();
 
         // Todo: if request is step 1: validate if email is available and return result
         // Todo: return result: 200 (available) | 409 (user already exist)
