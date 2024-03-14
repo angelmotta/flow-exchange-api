@@ -30,12 +30,10 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-    private final JwtDecoder jwtDecoder;
 
     @Autowired
     public UserController(UserService userService, JwtDecoder jwtDecoder) {
         this.userService = userService;
-        this.jwtDecoder = jwtDecoder;
     }
 
     @PostMapping("/availability")
