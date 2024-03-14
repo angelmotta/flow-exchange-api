@@ -108,15 +108,16 @@ public class UserController {
 
     @PostMapping("/availability")
     public ResponseEntity<EmailAvailabilityResponse> checkEmailAvailability(Authentication authentication) {
-        // Validate Header
-        System.out.println("Received authentication:");
-        System.out.println(authentication);
-
-        // Authenticate request
+        // Get userEmail from authentication
         String userEmail = getName(authentication).orElseThrow(() -> new AccessDeniedException("Invalid identity"));
+        // Check if user is available
         Boolean isAvailable = userService.isAvailable(userEmail);
+        if (!isAvailable) {
+            throw new ResourceAlreadyExistException(String.format("User with email '%s' is already registered", userEmail));
+        }
+
+        // Response: user is available
         System.out.println("Welcome : " + userEmail);
-        // Response
         return ResponseEntity.ok(new EmailAvailabilityResponse(isAvailable));
     }
 
