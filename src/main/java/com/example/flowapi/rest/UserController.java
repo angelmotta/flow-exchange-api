@@ -38,74 +38,6 @@ public class UserController {
         this.jwtDecoder = jwtDecoder;
     }
 
-    @PostMapping("/old-availability")
-    public ResponseEntity<EmailAvailabilityResponse> checkEmailAvailability(@Valid @RequestBody EmailAvailabilityRequest emailAvailabilityRequest, HttpServletRequest request) {
-        // Validate Header
-        System.out.println("Received body request:");
-        System.out.println(emailAvailabilityRequest);
-
-        // Authenticate request
-        String authorizationHeader = request.getHeader("Authorization");
-        System.out.println("--- Authorization header ----");
-        System.out.println(authorizationHeader);
-        System.out.println("-------------");
-        if (authorizationHeader == null) {
-            // Todo: 400 status
-            throw new AccessDeniedException("Invalid Authorization Header: null");
-        }
-        String[] authHeaderList = authorizationHeader.split(" ");
-        if (authHeaderList.length != 2 || authHeaderList[1] == null) {
-            throw new AccessDeniedException("Invalid Authorization Header: should ne 'Bearer <token>'");
-        }
-
-        // Todo: try / 401 not authorized
-        // Try catch block decode jwtDecoder and get email
-        String userEmail;
-        try {
-            System.out.println("Try jwt decode");
-            Jwt jwt = jwtDecoder.decode(authHeaderList[1]);
-            var claims = jwt.getClaims();
-             userEmail = claims.get("email").toString();
-        } catch (JwtValidationException e) {
-            // inspect exception and verify if it is a JwtException due to invalid token
-            System.out.println("Catch JwtValidationException: tried decoding jwt");
-            System.out.println(e.getMessage());
-            System.out.println(e.getLocalizedMessage());
-            System.out.println(e.getErrors());
-            System.out.println(e.getErrors().size());
-            // get the error element from collection getErrors()
-            var err = e.getErrors().iterator().next(); // guaranteed to have at least one element
-//            for (var error : e.getErrors()) {
-//                System.out.println(error.getErrorCode());
-//                System.out.println(error.getDescription());
-//            }
-//            System.out.println("---");
-//            System.out.println(e.getClass().getSimpleName()); // JwtValidationException class
-            throw new AccessDeniedException(err.getDescription());
-        } catch (Exception e) {
-            System.out.println("Catch General exception: tried decoding jwt");
-            throw new AccessDeniedException(e.getMessage());
-        }
-        System.out.println("decode jwt done");
-        System.out.println(userEmail);
-//        Jwt jwt = jwtDecoder.decode(authHeaderList[1]);
-//
-//        System.out.println("decode jwt done");
-//        var claims = jwt.getClaims();
-//        String userEmail = claims.get("email").toString();
-
-        // Todo: if request is step 1: validate if email is available and return result
-        // Todo: return result: 200 (available) | 409 (user already exist)
-        Boolean isAvailable = userService.isAvailable(userEmail);
-        System.out.println("Is user available?");
-        System.out.println(isAvailable);
-//        if (!isAvailable) {
-//            throw new ResourceAlreadyExistException(String.format("User with email '%s' is already registered", userEmail));
-//        }
-        return ResponseEntity.ok(new EmailAvailabilityResponse(isAvailable));
-    }
-
-
     @PostMapping("/availability")
     public ResponseEntity<EmailAvailabilityResponse> checkEmailAvailability(Authentication authentication) {
         // Get userEmail from authentication
@@ -116,8 +48,8 @@ public class UserController {
             throw new ResourceAlreadyExistException(String.format("User with email '%s' is already registered", userEmail));
         }
 
-        // Response: user is available
-        System.out.println("Welcome : " + userEmail);
+        // Response: email available
+        System.out.println("Email available : " + userEmail);
         return ResponseEntity.ok(new EmailAvailabilityResponse(isAvailable));
     }
 
@@ -128,10 +60,8 @@ public class UserController {
 
         String userEmail = getName(authentication).orElseThrow(() -> new AccessDeniedException("Invalid identity"));
         Boolean isAvailable = userService.isAvailable(userEmail);
-        System.out.println("Is user available?");
         System.out.println(userEmail + " available: " + isAvailable);
         if (!isAvailable) {
-            // TODO: 409 status
             throw new ResourceAlreadyExistException(String.format("User with email '%s' is already registered", userEmail));
         }
 
