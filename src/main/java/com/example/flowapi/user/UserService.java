@@ -1,6 +1,7 @@
 package com.example.flowapi.user;
 
 import com.example.flowapi.rest.payload.SignupRequest;
+import com.example.flowapi.rest.payload.UserInfoSignupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +23,13 @@ public class UserService {
         return user;
     }
 
-    public User create(SignupRequest signupRequest, String userEmail) {
+    public User create(UserInfoSignupRequest userInfoSignupRequest, String userEmail) {
         User newUser = new User();
-        newUser.setName(signupRequest.getUserInfo().getName());
-        newUser.setDni(signupRequest.getUserInfo().getDni());
-        newUser.setLastnameMain(signupRequest.getUserInfo().getLastName_main());
-        newUser.setLastnameSecondary(signupRequest.getUserInfo().getLastName_secondary());
-        newUser.setAddress(signupRequest.getUserInfo().getAddress());
+        newUser.setName(userInfoSignupRequest.getName());
+        newUser.setDni(userInfoSignupRequest.getDni());
+        newUser.setLastnameMain(userInfoSignupRequest.getLastName_main());
+        newUser.setLastnameSecondary(userInfoSignupRequest.getLastName_secondary());
+        newUser.setAddress(userInfoSignupRequest.getAddress());
         newUser.setEmail(userEmail);
         // Additional userInfo
         String ROLE_USER = "customer";
