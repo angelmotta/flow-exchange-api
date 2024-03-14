@@ -1,5 +1,6 @@
 package com.example.flowapi.rest.controlleradvice;
 
+import com.example.flowapi.exception.ResourceAlreadyExistException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
@@ -64,6 +65,13 @@ public class ErrorHandlingControllerAdvice {
         }
         // Handle other data integrity violations here
         return new ResponseEntity<>("Data integrity violation occurred.", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistException.class)
+    public ResponseEntity<?> handleResourceAlreadyExistException(ResourceAlreadyExistException ex) {
+        System.out.println("Handle ResourceAlreadyExistException");
+        GeneralErrorResponse errorResponse = new GeneralErrorResponse(ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
